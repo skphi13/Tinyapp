@@ -6,17 +6,16 @@
 </head>
 <body>
     <!-- Add your EJS code here -->
-    <ul>
-        <li>
-            <% for(var key in urls) { %>
-                u/<%= key %> -->
-                    <a href=<%= urls[key].longURL %>><%= urls[key].longURL %></a>
-                    
-        </li>
+     <% for(var key in urls) { %> 
+        <div style="margin: 15px;" >  
+        <%= key %> -->
+        <a href=<%= urls[key].longURL %>><%= urls[key].longURL %></a>
+        <a href="/urls/<%= key %>">Edit</a>
+        <form method="POST" action="/urls/<%=key%>/delete" style="margin:10px; display:inline-block;" >
+        <button type='submit'>DELETE</button>
         </form>
+    </div>
         <% } %>
-    </ul>
-
     <a href="/urls/new">Make new Short URL</a>
 </body>
 </html>

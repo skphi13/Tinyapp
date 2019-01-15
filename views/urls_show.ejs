@@ -3,17 +3,14 @@
 <%- include ./partials/_header %>
 
     <body style="font-size:20px; padding:20px;">
-        Short URL:
-        u/<%= shortURL %>
-        <form action="/urls/<%=shortURL %>" method="POST" style="margin:30px;">
-            <label for="longURL">Enter a New URL:</label>
+              <p><strong>ShortURL: <%= urlObj.shortURL %></a></strong></p>
+              <p><strong>LongURL: <%= urlObj.longURL %></strong></p>
+              <form method="POST" action="/urls/<%= urlObj.shortURL %>">
+                <label for="longURL"></label>
+                <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 200px">
+                <input type="submit" value="Update">
+              </form>
 
-            <input id="longURL" type="text" name="longURL" value="<%=longURL%>" style="width: 300px">
-            <button type="submit">UPDATE</button>
-        </form>
-        <form method="POST" action="/urls/<%=shortURL%>/delete" style="margin:10px;">
-            <button type='submit'>DELETE</button>
-        </form>
     </body>
 
 </html>
