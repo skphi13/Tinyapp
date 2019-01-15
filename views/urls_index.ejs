@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+  <%- include ./partials/_header %>
+</head>
+<body>
+    <!-- Add your EJS code here -->
+    <ul>
+        <li>
+            <% for(var key in urls) { %>
+                u/<%= key %> -->
+                    <a href=<%= urls[key].longURL %>><%= urls[key].longURL %></a>
+                    
+        </li>
+        </form>
+        <% } %>
+    </ul>
+
+    <a href="/urls/new">Make new Short URL</a>
+</body>
+</html>
