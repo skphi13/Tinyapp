@@ -25,36 +25,66 @@ let urlDatabase = {
     }
 };
 
-const user = {};
+const users = { 
+    "userRandomID": {
+      id: "userRandomID", 
+      email: "user@example.com", 
+      password: "purple-monkey-dinosaur"
+    },
+   "user2RandomID": {
+      id: "user2RandomID", 
+      email: "user2@example.com", 
+      password: "dishwasher-funk"
+    }
+  }
 
 // GET
+app.get("/register", (req, res) => {
+    res.render("register");
+    
+});
+app.get("/", (req, res) => {
+    const user = users[req.cookies.user_id];
+    if (!user) {
+      res.redirect(403, "/login");
+      return;
+    }
+    res.redirect("/urls");
+  });
 
 app.get("/urls", (req, res) => {
-    const username = req.cookies["username"];
-    if (!username) {
-      res.render('urls_login');
-    } else {
+    let userId = req.cookies.user_id;
+    let user = users[userId];
+    // console.log(userId)
+    // if(userId) {
         let templateVars = {
         urls: urlDatabase,
-        username: req.cookies["username"],
-        }
-        res.render("urls_index", templateVars);
-    }
+        user: user
+    };
+    
+    res.render("urls_index", templateVars);
+//   } else {
+//     res.status(400).send('Please login or register to view your urls.');
+//   }
 });
 
 app.get("/urls/new", (req, res) => {
+    let userId = req.cookies.user_id;
+    let user = users[userId];
     let templateVars = {
         urls: urlDatabase,
-        username: req.cookies["username"],
+        user: user
       };
-      res.render("urls_new", templateVars);
+    res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
     let shortURL = req.params.id;
+    let userId = req.cookies.user_id;
+    let user = users[userId];
     let templateVars = {
       urlObj: urlDatabase[req.params.id],
-      username: req.cookies["username"],
+      user: user,
     };
     //console.log(urls);
     res.render("urls_show", templateVars);
@@ -71,6 +101,12 @@ app.get("/u/:shortURL", (req, res) => {
       res.status(302);
       res.redirect(longURL);
     }
+  });
+
+app.get("/login", (req, res) => {
+
+    res.render('login');
+    
   });
 
 //POST 
@@ -107,17 +143,49 @@ app.post("/urls/:id/delete", (req, res) => {
   });
 
 app.post("/login", (req, res) => {
-    let value = req.body.username
-    res.cookie("username", value);
+    let email = req.body.email;
+    let password = req.body.password;
+    let result = findUser(email, password);
+    
+    if(result){  
+    //user id and password matched
+    res.cookie('user_id', result.id);
+    console.log(result);
     res.redirect('/urls');
+  } else {
+    //user id and password didnt match
+    res.status(403).send('Password or email address incorrect. Please try again');
+  }
 });
 
 app.post("/logout", (req, res) => {
-    res.clearCookie("username");
+    res.clearCookie("user_id");
     res.redirect('/urls');
   });
 
+  app.post("/register", (req, res) => {
 
+  let userID = generateRandomString();
+  const password = req.body.password;
+  
+  let userVars = {
+    id: userID,
+    email: req.body.email,
+    password: password
+  };
+  //if email or password is blank
+  if (!userVars.email || !userVars.password) {
+    res.status(400).send('Please enter both an email and password to register.');
+  //if email exist
+  } else if (checkEmail(req.body.email)) {
+    res.status(400).send('Email already exists. Please enter another.');
+  } else {
+    // insert userVars into database
+    users[userID] = userVars;
+    res.cookie('user_id', userID);
+    res.redirect('/urls');
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -132,3 +200,20 @@ function generateRandomString() {
     for (let i = 0; i < 6; i++) result += possible.charAt(Math.floor(Math.random() * possible.length));
     return result;
   };
+
+  //check to see if email already exist
+function checkEmail(email) {
+    for (var userID in users) {
+      if (users[userID].email === email) return true;
+    }
+    return false;
+  };
+
+  // function to authenticate the user
+  function findUser(email, password) {
+    for (let user in users) {
+      if (users[user].email === email && users[user].password === password) {
+        return users[user];
+      }
+    }
+  }
