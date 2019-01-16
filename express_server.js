@@ -22,6 +22,7 @@ let urlDatabase = {
 };
 
 // GET
+
 app.get("/urls", (req, res) => {
     let templateVars = {
         urls: urlDatabase,
@@ -58,7 +59,7 @@ app.get("/u/:shortURL", (req, res) => {
     }
   });
 
-//POST
+//POST 
 app.post("/urls", (req, res) => {
     let newshortURL = generateRandomString();
     
@@ -85,9 +86,9 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-    const UrlObj = urlDatabase[req.params.id];
+    const UrlObj = req.params.id;
     console.log(UrlObj)
-    delete urlDatabase[req.params.id];
+    delete urlDatabase[UrlObj];
     res.redirect('/urls');
   });
 
