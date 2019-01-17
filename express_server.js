@@ -17,11 +17,13 @@ let urlDatabase = {
     "b2xVn2": {
       shortURL: "b2xVn2",
       longURL: "http://www.lighthouselabs.ca",
+      userID: "userRandomID",
     
     },
     "9sm5xK": {
       shortURL: "9sm5xK",
       longURL: "http://www.google.com",
+      userID: "user2RandomID",
     }
 };
 
@@ -56,38 +58,42 @@ app.get("/urls", (req, res) => {
     let userId = req.cookies.user_id;
     let user = users[userId];
     // console.log(userId)
-    // if(userId) {
+    if(userId) {
+
         let templateVars = {
-        urls: urlDatabase,
-        user: user
-    };
-    
+            urls: urlsForUser(userId),
+            user: user
+        };
     res.render("urls_index", templateVars);
-//   } else {
-//     res.status(400).send('Please login or register to view your urls.');
-//   }
+   } else {
+    res.status(400).send('Please login or register.');
+   }
 });
 
 app.get("/urls/new", (req, res) => {
-    let userId = req.cookies.user_id;
-    let user = users[userId];
     let templateVars = {
-        urls: urlDatabase,
-        user: user
-      };
+        user: users[req.cookies.user_id]
+    };
+    if (templateVars.user === undefined) {
+        res.status(403);
+        res.redirect("/login");
+    }
     res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-    let shortURL = req.params.id;
-    let userId = req.cookies.user_id;
-    let user = users[userId];
-    let templateVars = {
-      urlObj: urlDatabase[req.params.id],
-      user: user,
-    };
-    //console.log(urls);
-    res.render("urls_show", templateVars);
+    const user = users[req.cookies.user_id];
+    //console.log("uswrid", user)
+    if (user.id !== urlDatabase[req.params.id].userID) {
+        
+        res.send("Not your urls");
+    } else {
+        let templateVars = {
+            urlObj: urlDatabase[req.params.id],
+            user: user,
+        };
+        res.render("urls_show", templateVars);
+    }
 });
 
 // redirect short urls to long urls
@@ -112,35 +118,41 @@ app.get("/login", (req, res) => {
 //POST 
 app.post("/urls", (req, res) => {
     let newshortURL = generateRandomString();
-    
     let longURL = req.body.longURL;
-    console.log(longURL)
-    
-    urlDatabase[newshortURL]= {
-    shortURL: newshortURL,
-    longURL: longURL
-    };
-    console.log(urlDatabase[newshortURL])
-    res.redirect('/urls/' + newshortURL);
+    let userId = req.cookies.user_id;
+    let user = users[userId];
+    if (userId) {
+        urlDatabase[newshortURL] = {
+        shortURL: newshortURL,
+        longURL: longURL,
+        userID: userId
+        };
+        res.redirect('/urls/' + newshortURL);
+    } else {
+        res.status(400).send('Please login to access your urls.');
+    }
   });
 
 app.post("/urls/:id", (req, res) => {
     let currentURL = urlDatabase[req.params.id].longURL;
-    console.log(currentURL)
+    //console.log(currentURL)
     let newlongURL = req.body.longURL;
-    console.log(req.body.longURL)
-    console.log(req.params)
+    //console.log(req.body.longURL)
+    //console.log(req.params)
     urlDatabase[req.params.id].longURL = newlongURL;
     
     res.redirect('/urls');
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-    const UrlObj = req.params.id;
-    console.log(UrlObj)
-    delete urlDatabase[UrlObj];
-    res.redirect('/urls');
-  });
+    const UrlObj = urlDatabase[req.params.id];
+    if(UrlObj.userID === req.cookies.user_id) {
+        delete urlDatabase[req.params.id];
+        res.redirect('/urls');
+    } else {
+        res.status(403).send('You can only delete your own urls.');
+  }
+});
 
 app.post("/login", (req, res) => {
     let email = req.body.email;
@@ -150,7 +162,7 @@ app.post("/login", (req, res) => {
     if(result){  
     //user id and password matched
     res.cookie('user_id', result.id);
-    console.log(result);
+    //console.log(result);
     res.redirect('/urls');
   } else {
     //user id and password didnt match
@@ -216,4 +228,14 @@ function checkEmail(email) {
         return users[user];
       }
     }
+  }
+
+  function urlsForUser(id) {
+    const urls = {};
+    for (let shortURL in urlDatabase) {
+      if (urlDatabase[shortURL].userID === id) {
+        urls[shortURL] = urlDatabase[shortURL];
+      }
+    }
+    return urls;
   }
