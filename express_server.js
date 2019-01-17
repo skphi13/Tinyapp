@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 
 
@@ -179,11 +180,12 @@ app.post("/logout", (req, res) => {
 
   let userID = generateRandomString();
   const password = req.body.password;
+  const encrytPassword = bcrypt.hashSync(password, 10);
   
   let userVars = {
     id: userID,
     email: req.body.email,
-    password: password
+    password: encrytPassword
   };
   //if email or password is blank
   if (!userVars.email || !userVars.password) {
@@ -224,7 +226,7 @@ function checkEmail(email) {
   // function to authenticate the user
   function findUser(email, password) {
     for (let user in users) {
-      if (users[user].email === email && users[user].password === password) {
+      if (users[user].email === email && (bcrypt.compareSync(password, users[user].password))) {
         return users[user];
       }
     }
