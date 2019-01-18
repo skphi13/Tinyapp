@@ -113,7 +113,8 @@ app.get("/u/:shortURL", (req, res) => {
       res.status(404).send('<h2>Url does not exist. Please <a href="/urls/new">create</a> one </h2>');
     } else {
       let longURL = urlDatabase[req.params.shortURL].longURL; 
-      res.status(302);
+      let shortURL = req.params.shortURL;
+      urlDatabase[shortURL].counter++
       res.redirect(longURL);
     }
 });
@@ -133,11 +134,14 @@ app.post("/urls", (req, res) => {
     let longURL = req.body.longURL;
     let userId = req.session.user_id;
     let user = users[userId];
+    let now = new Date(new Date().getTime() - 0*60*60*1000).toLocaleString('en-US');
     if (userId) {
         urlDatabase[newshortURL] = {
-        shortURL: newshortURL,
-        longURL: longURL,
-        userID: userId
+            shortURL: newshortURL,
+            longURL: longURL,
+            userID: userId,
+            counter: 0,
+            dateCreate: now,
         };
         res.redirect('/urls/' + newshortURL);
     } else {

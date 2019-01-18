@@ -7,14 +7,18 @@
           p    {color: red;}
   </style>
 <body>
-  <h1>Login</h1>
-  <form action="/login" method="POST" name="login" type="login" value="Email">
-    <label for="email">Email:</label> 
-    <input id="email" type="email" name="email" placeholder="email" style="width: 150px">
-    <label for="password">Password:</label>
-    <input id="password" type="password" name="password" placeholder="password" style="width: 150px">
-    <button>Login</button>
-  </form>
+  <main>
+      <h2>Log into your account</h2>
+      <form action="/login" method="POST">
+        <label for="login">Login </label>
+        <input id="login" name="email" type="email">
+        <label for="password">Password </label>
+        <input id="password" name="password" type="password">
+        <input type="submit" value="Sign In">
+      </form>
+  
+      <p>Don't have an account? <a href="/register">Click here to create a new account.</a></p>
+    </main>
 </body>
 
 </html>

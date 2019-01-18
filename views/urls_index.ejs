@@ -7,22 +7,34 @@
 <style>
         body {background-color: rgb(45, 210, 243); text-align: center;}
         h1   {color: blue;}
-        h2   {color: red;}
+        h2   {color: rgb(41, 29, 206);}
         p    {color: red;}
 </style>
 <body>
     <!-- Add your EJS code here -->
-    <h2> List of Urls! </h1>
-     <% for(var key in urls) { %> 
-        <div style="margin: 15px;" >  
-        <%= key %> -->
-        <a href=<%= urls[key].longURL %>><%= urls[key].longURL %></a>
-        <a href="/urls/<%= key %>">Edit</a>
-        <form method="POST" action="/urls/<%=key%>/delete" style="margin:10px; display:inline-block;" >
-        <button type='submit'>DELETE</button>
-        </form>
-    </div>
+    <h2> Your list of urls! </h1>
+        <table align="center">
+            <tr>
+                <th>Shortlink</th>
+                <th>Original URL</th>
+                <th>Date Created</th>
+                <th>Hits</th>
+                <th>Tools</th>
+            </tr> 
+       <% for(var key in urls) { %> 
+            <tr>
+                <td><strong><a href="/u/<%= key %>"><%= key %></a> --> </strong></td>
+                <td><a href=<%= urls[key].longURL %>><%= urls[key].longURL %></a></td>
+                <td><%= urls[key].dateCreate %></td>
+                <td><%= urls[key].counter %></td>
+                <td><a href="/urls/<%= key %>">Edit</a>
+                    <form method="POST" action="/urls/<%=key%>/delete" style="margin:10px; display:inline-block;" >
+                    <button type='submit'>DELETE</button>
+                    </form>
+                </td>
+            </tr>
         <% } %>
+        </table> 
     <a href="/urls/new">Make new Short URL</a>
 </body>
 </html>
